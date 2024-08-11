@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
+    'rest_framework.authtoken',
+    'account',
 ]
 if DEBUG:
     INSTALLED_APPS += [
@@ -130,7 +132,24 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+AUTH_USER_MODEL = 'account.User'
+
 REST_FRAMEWORK = {
-    # YOUR SETTINGS
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-cache-name',  # This can be any unique string identifier
+        'TIMEOUT': 300,  # Cache timeout in seconds, or None for no timeout
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000,  # Maximum number of cache entries, default is 300
+            'CULL_FREQUENCY': 3,  # Fraction of entries to be culled when max entries are reached
+        }
+    }
 }
