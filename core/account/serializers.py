@@ -6,6 +6,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import authenticate, get_user_model
 from django.utils.translation import gettext_lazy as _
 from .validations import validate_phone_number
+from .utils import is_phone_number_blocked
 
 User = get_user_model()
 
@@ -73,18 +74,12 @@ class LoginOTPSerializer(serializers.Serializer):
         }
     )
     code = serializers.CharField(
-        max_length=6,
-        min_length=6,
         validators=[
             RegexValidator(
                 regex=r'^\d{6}$',
                 message=_('Code must be exactly 6 digits.')
             )
         ],
-        error_messages={
-            'max_length': _('Code must be exactly 6 digits.'),
-            'min_length': _('Code must be exactly 6 digits.')
-        }
     )
 
     def validate(self, attrs):
@@ -97,10 +92,22 @@ class LoginOTPSerializer(serializers.Serializer):
         # Retrieve the nonce value from the cache
         nonce_val = cache.get(nonce)
 
+        # Store phone_number in the serializer instance for later access
+        self.phone_number = nonce_val.get(
+            'phone_number') if nonce_val else None
+
         # Raise error if nonce is invalid or expired
         if nonce_val is None:
             msg = _('Invalid or expired nonce.')
             raise serializers.ValidationError(msg)
+
+        # Check if the phone number is blocked
+        is_blocked, time_remaining = is_phone_number_blocked(self.phone_number)
+        if is_blocked:
+            raise serializers.ValidationError(
+                _('This phone number is blocked due to multiple failed attempts. Try again in {time_remaining} minutes.').format(
+                    time_remaining=time_remaining)
+            )
 
         attrs['phone_number'] = nonce_val.get('phone_number')
         attrs['otp_code'] = nonce_val.get('otp_code')

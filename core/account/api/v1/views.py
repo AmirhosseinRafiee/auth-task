@@ -1,4 +1,4 @@
-from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView, UpdateAPIView
+from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
@@ -17,13 +17,16 @@ from ...serializers import (
     OTPForDevSerializer,
 )
 from ...pemissions import IsNotAuthenticated
+from ...mixins import ClientIPMixin
+from ...decorators import block_phone_number_required
+from ...utils import record_failed_attempt
 import random
 import string
 
 User = get_user_model()
 
 
-class LoginAPIView(GenericAPIView):
+class LoginAPIView(ClientIPMixin, GenericAPIView):
     """
     View to handle user login with phone number.
     If the user has a password set, redirect to password login.
@@ -32,11 +35,12 @@ class LoginAPIView(GenericAPIView):
     serializer_class = LoginSerializer
     permission_classes = [IsNotAuthenticated]
 
+    @block_phone_number_required
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        phone_number = serializer.validated_data['phone_number']
 
+        phone_number = serializer.validated_data['phone_number']
         if self._user_exists_and_has_password(phone_number):
             return Response({'phone_number': phone_number, 'redirect_to': reverse('account:login-password')})
 
@@ -61,16 +65,21 @@ class LoginAPIView(GenericAPIView):
         return user and user.has_usable_password()
 
 
-class LoginPasswordAPIView(GenericAPIView):
+class LoginPasswordAPIView(ClientIPMixin, GenericAPIView):
     """
     View to handle login with phone number and password.
     """
     serializer_class = LoginPasswordSerializer
     permission_classes = [IsNotAuthenticated]
 
+    @block_phone_number_required
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        if not serializer.is_valid():
+            # Record failed attempt
+            record_failed_attempt(ip_address=self.get_client_ip(
+                request), phone_number=request.data.get('phone_number'))
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         user = serializer.validated_data['user']
 
         # Generate or retrieve the authentication token for the user
@@ -82,16 +91,22 @@ class LoginPasswordAPIView(GenericAPIView):
         }, status=status.HTTP_200_OK)
 
 
-class LoginOTPAPIView(GenericAPIView):
+class LoginOTPAPIView(ClientIPMixin, GenericAPIView):
     """
     View to handle OTP verification.
     """
     serializer_class = LoginOTPSerializer
     permission_classes = [IsNotAuthenticated]
 
-    def post(self, request):
+    @block_phone_number_required
+    def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        if not serializer.is_valid():
+            phone_number = getattr(serializer, 'phone_number', None)
+            # Record failed attempt
+            record_failed_attempt(ip_address=self.get_client_ip(
+                request), phone_number=phone_number)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         phone_number = serializer.validated_data['phone_number']
 
         # Delete the nonce from the cache after successful validation

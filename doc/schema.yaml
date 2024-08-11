@@ -1,0 +1,521 @@
+openapi: 3.0.3
+info:
+  title: ''
+  version: 0.0.0
+paths:
+  /account/api/v1/login/:
+    post:
+      operationId: account_api_v1_login_create
+      description: |-
+        View to handle user login with phone number.
+        If the user has a password set, redirect to password login.
+        Otherwise, generate an OTP and return a nonce for verification.
+      tags:
+      - account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Login'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Login'
+          description: ''
+  /account/api/v1/login/otp/:
+    post:
+      operationId: account_api_v1_login_otp_create
+      description: View to handle OTP verification.
+      tags:
+      - account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginOTP'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LoginOTP'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LoginOTP'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginOTP'
+          description: ''
+  /account/api/v1/login/password/:
+    post:
+      operationId: account_api_v1_login_password_create
+      description: View to handle login with phone number and password.
+      tags:
+      - account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginPassword'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LoginPassword'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LoginPassword'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginPassword'
+          description: ''
+  /account/api/v1/otp-for-dev/:
+    post:
+      operationId: account_api_v1_otp_for_dev_create
+      description: View for development purposes to retrieve OTP code by nonce.
+      tags:
+      - account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OTPForDev'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OTPForDev'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OTPForDev'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OTPForDev'
+          description: ''
+  /account/api/v1/reset-password/:
+    post:
+      operationId: account_api_v1_reset_password_create
+      description: API View to allow users to reset their password.
+      tags:
+      - account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPassword'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResetPassword'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResetPassword'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResetPassword'
+          description: ''
+  /account/api/v1/set-password/:
+    put:
+      operationId: account_api_v1_set_password_update
+      description: Handle PUT requests to set the user's password.
+      tags:
+      - account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetPassword'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SetPassword'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SetPassword'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetPassword'
+          description: ''
+  /account/api/v1/user/:
+    get:
+      operationId: account_api_v1_user_retrieve
+      description: View for retrieving and updating the current user's details.
+      tags:
+      - account
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetail'
+          description: ''
+    put:
+      operationId: account_api_v1_user_update
+      description: View for retrieving and updating the current user's details.
+      tags:
+      - account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserDetail'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetail'
+          description: ''
+    patch:
+      operationId: account_api_v1_user_partial_update
+      description: View for retrieving and updating the current user's details.
+      tags:
+      - account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserDetail'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetail'
+          description: ''
+  /api/schema/:
+    get:
+      operationId: api_schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+components:
+  schemas:
+    Login:
+      type: object
+      description: Serializer for logging in users via phone number.
+      properties:
+        phone_number:
+          type: string
+          maxLength: 11
+      required:
+      - phone_number
+    LoginOTP:
+      type: object
+      description: Serializer for verifying OTP codes.
+      properties:
+        nonce:
+          type: string
+          maxLength: 16
+          minLength: 16
+        code:
+          type: string
+          pattern: ^\d{6}$
+      required:
+      - code
+      - nonce
+    LoginPassword:
+      type: object
+      description: Serializer for logging in users with phone number and password.
+      properties:
+        phone_number:
+          type: string
+          maxLength: 11
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - password
+      - phone_number
+    OTPForDev:
+      type: object
+      description: Serializer for OTP generation during development.
+      properties:
+        nonce:
+          type: string
+          maxLength: 16
+          minLength: 16
+      required:
+      - nonce
+    PatchedUserDetail:
+      type: object
+      description: Serializer for retrieving user details.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        phone_number:
+          type: string
+          readOnly: true
+          description: Phone number must start with '09' and be 11 digits long.
+        first_name:
+          type: string
+          maxLength: 30
+        last_name:
+          type: string
+          maxLength: 30
+        email:
+          type: string
+          format: email
+          maxLength: 254
+    ResetPassword:
+      type: object
+      description: Serializer for resetting a user's password.
+      properties:
+        old_password:
+          type: string
+          writeOnly: true
+        new_password:
+          type: string
+          writeOnly: true
+        retype_new_password:
+          type: string
+          writeOnly: true
+      required:
+      - new_password
+      - old_password
+      - retype_new_password
+    SetPassword:
+      type: object
+      description: Serializer for setting a new password for the user.
+      properties:
+        new_password:
+          type: string
+        confirm_password:
+          type: string
+      required:
+      - confirm_password
+      - new_password
+    UserDetail:
+      type: object
+      description: Serializer for retrieving user details.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        phone_number:
+          type: string
+          readOnly: true
+          description: Phone number must start with '09' and be 11 digits long.
+        first_name:
+          type: string
+          maxLength: 30
+        last_name:
+          type: string
+          maxLength: 30
+        email:
+          type: string
+          format: email
+          maxLength: 254
+      required:
+      - id
+      - phone_number
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    tokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token"
